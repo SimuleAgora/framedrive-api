@@ -19,17 +19,43 @@ var UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
     minlength: 6
   },
+  facebook: [{
+    id: {
+      type: String
+    },
+    token: {
+      type: String
+    },
+    name: {
+      type: String
+    },
+    email: {
+      type: String
+    }
+  }],
+  google: [{
+    id: {
+      type: String
+    },
+    token: {
+      type: String
+    },
+    name: {
+      type: String
+    }, 
+    email: {
+      type: String
+    }
+  }],
   studio: {
-    required:true,
     type: String,
     minlength: 3,
     trim: true,
     lowercase:true
   },
-  type: {
+  account: {
     type: String,
     trim: true,
     lowercase: true,
@@ -66,7 +92,13 @@ var UserSchema = new mongoose.Schema({
 UserSchema.methods.toJSON = function () {
   var user = this;
   var userObject = user.toObject();
-
+  
+  
+  // if(userObject.facebook[0].token){
+  //   userObject.token = true; 
+  // } else {
+  //   userObject.token = false;
+  // }
   return _.pick(userObject, ['_id', 'email']);
 };
 
@@ -110,7 +142,7 @@ UserSchema.statics.findByToken = function (token) {
 
 UserSchema.statics.findByCredentials = function (email, password) {
   var User = this;
-
+  
   return User.findOne({email}).then((user) => {
     if (!user) {
       return Promise.reject();

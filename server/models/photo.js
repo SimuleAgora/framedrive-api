@@ -7,7 +7,8 @@ var Photo = mongoose.model('Photo', {
   },
   _folder: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true
+    required: true,
+    default:'/'
   },
   type: {
     type: String,
