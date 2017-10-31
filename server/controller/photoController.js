@@ -7,6 +7,7 @@ const _ = require('lodash');
 const {ObjectID} = require('mongodb');
 
 var create = (req, res, next) =>{
+
   var projectId = req.params.project;
   var folderId = req.params.folder;
 
@@ -18,7 +19,7 @@ var create = (req, res, next) =>{
     'selfLink',
     'mediaLink'
   ]);
-  if (!ObjectID.isValid(projectId)) {
+  if (!ObjectID.isValid(projectId) || !body.id || !body.name || !body.bucket || !body.size || !body.selfLink || !body.mediaLink) {
     return res.status(200).send({status:404});
   }
 
@@ -27,7 +28,7 @@ var create = (req, res, next) =>{
     _creator: req.user._id
   }).then((project) => {
     if (!project) {
-      res.status(200).send({status:404});
+      return res.status(200).send({status:404});
     }
 
     project.photos.push({
@@ -41,17 +42,16 @@ var create = (req, res, next) =>{
       type: "photo",
       _createdAt: moment().format("DD/MM/YYYY HH:mm:ss")  
     });
-     project.save().then((doc) => {
-          res.status(200).send({status:200});
+     project.save().then((project) => {
+          res.status(200).send({status:200, photo: project.photos[project.photos.length-1] });
      });
 
   }).catch((e) => {
     res.status(200).send({status:400});
   });
- res.status(200).send({status: 200});
 
 }
 
 
-module.exports = {create};
+module.exports =  {create};
 

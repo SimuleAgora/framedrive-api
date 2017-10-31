@@ -13,8 +13,10 @@ var UserSchema = new mongoose.Schema({
     minlength: 1,
     unique: true,
     validate: {
-      validator: validator.isEmail,
-      message: '{VALUE} is not a valid email'
+      validator: (value)=>{
+         return validator.isEmail(value);  
+       },
+       message:'{VALUE} is not a valid Email'
     }
   },
   password: {
@@ -62,6 +64,9 @@ var UserSchema = new mongoose.Schema({
     enum: ['admin','user','client'],
     default: 'admin'
   },
+  project: {
+    type:String
+  },
   subscription: {  
       type: Date
   },
@@ -86,6 +91,9 @@ var UserSchema = new mongoose.Schema({
    _updatedAt: {  
       type: Date,
       default: Date.now
+  },
+  reference: {
+    type: String
   }
 });
 
@@ -175,6 +183,10 @@ UserSchema.pre('save', function (next) {
     next();
   }
 });
+
+
+
+
 
 var User = mongoose.model('User', UserSchema);
 

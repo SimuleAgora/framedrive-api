@@ -4,11 +4,10 @@ const _ = require('lodash');
 
 var base = require('./baseController');
 var {Project} = require('../models/project');
-var {Photo} = require('../models/photo');
 
 var createFolder = (req, res, next) =>{
  var body = _.pick(req.body, ['_project','folder','folderAbove']);
-  if (base.validateId(body._project)) {
+  if (base.validateId(body._project) || !body.folder || !body.folderAbove) {
     return res.status(200).send({status:404});
   }
 
@@ -26,8 +25,8 @@ var createFolder = (req, res, next) =>{
       folderEncoded: base.mountStringEncoded(body.folder),
       _createdAt: moment().format("DD/MM/YYYY HH:mm:ss")  
     });
-     project.save().then((doc) => {
-          res.status(200).send({status:200});
+     project.save().then((project) => {
+          res.status(200).send({status:200, project: project});
      });
     
   }).catch((e) => {
@@ -48,10 +47,10 @@ var create = (req, res, next) => {
     _updatedAt: moment().format("YYYY-MM-DD")
   });
 
-  project.save().then((doc) => {
-    res.send({project: doc, status: 200});
+  project.save().then((project) => {
+    res.status(200).send({project: project, status: 200});
   }, (e) => {
-    res.status(200).send({error:e, status:400});
+    res.status(200).send({status:400, e:e});
   });
 };
 
@@ -71,17 +70,20 @@ var getAll = (req, res, next) => {
 var read = (req, res, next) => {
   var projectId = req.params.id;
   var folderId = '';
-  if(req.params.folder)
+  if(req.params.folder){
     folderId = req.params.folder
+    if(base.validateId(folderId))
+      return res.status(200).send({status: 404});
+  }
 
   if(base.validateId(projectId)){
-    res.status(200).send({status: 404});
+    return res.status(200).send({status: 404});
   }
 
   let findProject = Project.findProject(req.user._id , projectId);
   
   findProject.then((project)=>{
-
+    
       let findFolders = Project.getFolders(project.folders, folderId);
       let findPhotos = Project.getPhotos(project.photos, folderId);
 
@@ -89,12 +91,14 @@ var read = (req, res, next) => {
        res.status(200).send({project:project.project, folders:result[0], photos:result[1],status:200});
     })
     .catch((e) => {
-        console.log(e);
       res.status(200).send({status:400, message: 'could not get the folders and photos.'});
     });
-  }).catch((e) => {
-      console.log(e);
-      res.status(200).send({status:400, message: 'could not get the project'});
+  })
+  .catch((e) => {
+      if(e == 404)
+         res.status(200).send({status:404});
+       if(e == 400)
+         res.status(200).send({status:400});
   });
 }
 

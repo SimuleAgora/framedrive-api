@@ -3,9 +3,12 @@ require('./baseController');
 var {User} = require('./../models/user');
 const _ = require('lodash');
 const {ObjectID} = require('mongodb');
+var {User} = require('./../models/user');
+var {Project} = require('../models/project');
+var {sendEmail} = require('./../email');
 
 var me = (req, res, next) => {
- res.send(req.user);
+    res.status(200).send({status: 200, user: req.user});
 };
 var login = (req, res, next) => {
  var body = _.pick(req.body, ['email', 'password']);
@@ -15,7 +18,6 @@ var login = (req, res, next) => {
       res.header('x-auth', token).send({token: token, result:user, status:200});
     });
   }).catch((e) => {
-    console.log(e);
     res.status(200).send({status: 400});
   });
 };
@@ -28,6 +30,42 @@ var deleteToken = (req, res, next) => {
   });
 };
 
+var createClient = (req, res, next) => {
+  Project.findProject(req.user._id, req.params.project).then((project) => {
+    var body = _.pick(req.body, ['email']);
+    body.account = 'client';
+    body.reference = req.user._id;
+    body.project = req.params.project; 
+    var user = new User(body);
+    user.save().then((user) => {
+      //sendEmail(body.email, 'newClient', [req.user.studio, project.project.title, user._id ]).then(res.status(200).send({status: 200, user:user}));
+      res.status(200).send({status: 200, user:user});
+    }).catch((e) => {
+     res.status(200).send({status: 400, e:e});
+    });
+  }).catch((e)=>{
+     res.status(200).send({status: 400, e:e});
+  });  
+};
+
+var userSettings = (req, res, next) => {
+  var body = _.pick(req.body, ['password', 'user_id']);
+  User.findOne({
+      _id: body.user_id
+  }).then((user) => {
+      user.password = body.password;
+      user.save().then(() => {
+        user.generateAuthToken().then((token) => {
+          res.header('x-auth', token).status(200).send({status: 200, user:user});
+        });
+      }).catch((e) => {
+        res.status(200).send({status: 400, e:e});
+      });
+  }).catch((e) => {
+      res.status(200).send({status: 400, e:e});
+  });
+};
+
 var create = (req, res, next) => {
   var body = _.pick(req.body, ['email', 'password', 'studio','account','facebook','google']);
   var user = new User(body);
@@ -35,9 +73,9 @@ var create = (req, res, next) => {
   user.save().then(() => {
     return user.generateAuthToken();
   }).then((token) => {
-    res.header('x-auth', token).send(user);
+    res.header('x-auth', token).send({status:200, user:user});
   }).catch((e) => {
-    res.status(400).send(e);
+    res.status(200).send({status:400, e:e});
   })
 };
 
@@ -89,4 +127,4 @@ var update = (req, res, next) => {
   })
 }
 
-module.exports = {me, login, deleteToken, create, getUserByFacebook, loginFacebook, update};
+module.exports = {me, login, deleteToken, create, getUserByFacebook, loginFacebook, update, createClient, userSettings};

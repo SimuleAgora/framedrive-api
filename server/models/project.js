@@ -89,7 +89,7 @@ var ProjectSchema =  new mongoose.Schema({
 
 ProjectSchema.statics.findProject = function(userId, projectId) {
   return new Promise((res,rej) => {
-        console.log('Init find proj');
+        //console.log('Init find proj');
         Project.findOne({
         _id: projectId,
         _creator: userId
@@ -98,10 +98,10 @@ ProjectSchema.statics.findProject = function(userId, projectId) {
         if (!project) {
           rej(404);
         }
-          console.log('finished find proj');
+          //console.log('finished find proj');
           res({project: {_id:project._id, title:project.title, category:project.category, eventDate:project.eventDate, _updatedAt:project._updatedAt},folders:project.folders, photos:project.photos});
       }).catch((e) => {
-        console.log(e);
+        //console.log(e);
         rej(400);
       });
     });
@@ -117,19 +117,19 @@ ProjectSchema.statics.findFolders = function(userId, projectId) {
       if (!project) {
         //rej(404);
       }
-        //console.log('finished find folders');
+        ////console.log('finished find folders');
         final = []; 
          //project.folders.forEach((item) => { if(item.path.length == 1) { final.push(item); } });
       res({folders: final, root: {}});
     }).catch((e) => {
-      console.log(e);
+      //console.log(e);
       //rej(400);
     });
   });
 }
 
 ProjectSchema.statics.getFolders = function(projectFolders, folderAboveId) {
-  console.log('Init find folders');
+  //console.log('Init find folders');
   return new Promise((res,rej) => {
     var folders = [];
     if(projectFolders === undefined || projectFolders.length === 0)
@@ -138,26 +138,26 @@ ProjectSchema.statics.getFolders = function(projectFolders, folderAboveId) {
       if(folder.folderAbove === folderAboveId)
         folders.push(folder);
     });   
-      console.log('finished find folders');
+      //console.log('finished find folders');
  
     res({folders});
   });
 }
 
 ProjectSchema.statics.getPhotos = function(projectPhotos, folderId) {
-    console.log('Init find photos');
+    //console.log('Init find photos');
   return new Promise((res,rej) => {
-    console.log(projectPhotos);
+    //console.log(projectPhotos);
     var photos = [];
     if(projectPhotos === undefined || projectPhotos.length === 0){
-      console.log('finished find photos');
+      //console.log('finished find photos');
       res({photos});
     }
     projectPhotos.forEach((photo) => { 
       if(photo.folder === folderId)
         photos.push(photo);
     }); 
-    console.log('finished find photos');  
+    //console.log('finished find photos');  
     res(photos);
   });
 }
@@ -183,7 +183,7 @@ ProjectSchema.statics.getFolder = function(userId, projectId,folderId) {
         });
 
     }).catch((e) => {
-        console.log(e);
+        //console.log(e);
         rej(400);
   });
   });

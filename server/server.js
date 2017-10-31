@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 var UserController = require('./controller/userController');
 var ProjectController = require('./controller/projectController');
 var PhotoController = require('./controller/photoController');
+var ClientsController = require('./controller/clientsController');
 
 var {authenticate} = require('./middleware/authenticate');
 
@@ -20,6 +21,7 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-auth");
   res.header("Access-Control-Expose-Headers", "true");
   res.header("Access-Control-Allow-Credentials","true");
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH');
   next();
 });
 
@@ -34,16 +36,18 @@ app.get('/projects/:id', authenticate, ProjectController.read);
 
 app.get('/projects/:id/:folder', authenticate, ProjectController.read);
 
-
 app.patch('/projects/:id', authenticate, ProjectController.update);
 
 app.delete('/projects/:id', authenticate, ProjectController.remove);
 
-
 // PHOTOS //
 app.post('/photos/:project/:folder', authenticate, PhotoController.create);
+  
+// CLIENTS //
+app.post('/clients/:project', authenticate, UserController.createClient);
 
-   
+app.patch('/clients/setAccount', UserController.userSettings);
+
 // USERS //
 app.post('/users', UserController.create);
 
