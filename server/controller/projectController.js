@@ -140,5 +140,56 @@ var remove = (req, res, next) => {
   });
 }
 
-module.exports = {create, getAll, read, update, remove, createFolder};
+var getClientProjects = (req, res, next) => {
+  var listProjectsID = [];
+  req.user.projectsClient.forEach(project => {
+    listProjectsID.push(project.project);
+  });
+  Project.find({"_id": {"$in": listProjectsID}}).then((projects) => {
+    if (projects.length == 0 ) {
+      return res.send({status:404});
+    }
+    console.log(projects);
+    res.send({status:200, projects});
+  }).catch((e) => {
+    res.send({status:400, e:e});
+  });
+}
+
+var readClientProject = (req, res, next) => {
+  var projectId = req.params.id;
+  var folderId = '';
+  // if(req.params.folder){
+  //   folderId = req.params.folder
+  //   if(base.validateId(folderId))
+  //     return res.status(200).send({status: 404});
+  // }
+
+  // if(base.validateId(projectId)){
+  //   return res.status(200).send({status: 999});
+  // }
+
+  let findProject = Project.findProject(null , projectId);
+  
+  findProject.then((project)=>{
+    
+      let findFolders = Project.getFolders(project.folders, folderId);
+      let findPhotos = Project.getPhotos(project.photos, folderId);
+
+      Promise.all([findFolders, findPhotos]).then((result) => {
+       res.status(200).send({project:project.project, folders:result[0], photos:result[1],status:200});
+    })
+    .catch((e) => {
+      res.status(200).send({status:400, message: 'could not get the folders and photos.'});
+    });
+  })
+  .catch((e) => {
+      if(e == 404)
+         res.status(200).send({status:404});
+       if(e == 400)
+         res.status(200).send({status:400});
+  });   
+}
+
+module.exports = {create, getAll, read, update, remove, createFolder, getClientProjects, readClientProject};
  

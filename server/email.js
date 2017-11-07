@@ -29,7 +29,7 @@ var getTemplate = (template, params) => {
 }
 
 var sendEmail = (to, template, params) => {
-  console.log(params);
+  
    return new Promise((res, rej) => {
              getTemplate(template, params).then((message) => {
 transport.sendMail({

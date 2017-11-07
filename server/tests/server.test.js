@@ -444,7 +444,7 @@ describe('POST /clients/:project', () => {
           _id: clientOneID
         }).then((user) => {
           expect(user.reference).toEqual(users[0]._id);
-          expect(user.project).toEqual(projects[0]._id);
+          expect(user.projectsClient[0].project).toEqual(projects[0]._id);
           expect(user.password).toNotExist();
           done();
         }).catch((e) => done(e));
@@ -487,6 +487,7 @@ describe('PATCH /clients/setAccount', () => {
       .expect((res) => {
         expect(res.body.status).toBe(200);
         expect(res.body.user).toExist();
+        expect(res.body.token).toExist();
         expect(res.headers['x-auth']).toExist();
       })
       .end((err, res) => {
@@ -494,16 +495,6 @@ describe('PATCH /clients/setAccount', () => {
           console.log(res.body.e);
           return done(err);
         }
-
-
-
-
-
-
-
-
-
-
         User.findOne({
           _id: clients[0]._id
         }).then((user) => {
@@ -593,6 +584,50 @@ describe('POST /photos/:project/:folder', () => {
           console.log(res.body.e);
           return done(err);
         }
+        done();
+      });
+  });
+ 
+});
+
+
+describe('GET /clients/projects/', () => {
+ it('should take projects associated with the client', (done) => {
+    request(app)
+      .get(`/clients/projects`)
+      .set('x-auth', clients[0].tokens[0].token)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.status).toBe(200);
+        expect(res.body.projects[0]._id).toEqual(projects[0]._id);
+        expect(res.body.projects[1]._id).toEqual(projects[1]._id);
+        
+      })
+      .end((err, res) => {
+        if (err) {
+          console.log(res.body.e);
+          return done(err);
+        }
+
+        done();
+      });
+  });
+
+  it('should not take projects associated with the client', (done) => {
+    request(app)
+      .get(`/clients/projects`)
+      .set('x-auth', clients[1].tokens[0].token)
+      .expect(200)
+      .expect((res) => {
+       
+        expect(res.body.status).toBe(404);
+      })
+      .end((err, res) => {
+        if (err) {
+          console.log(res.body.e);
+          return done(err);
+        }
+
         done();
       });
   });

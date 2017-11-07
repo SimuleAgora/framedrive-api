@@ -64,9 +64,11 @@ var UserSchema = new mongoose.Schema({
     enum: ['admin','user','client'],
     default: 'admin'
   },
-  project: {
-    type:String
-  },
+  projectsClient: [{
+    project: {
+      type: String
+    }
+  }],
   subscription: {  
       type: Date
   },
@@ -107,7 +109,7 @@ UserSchema.methods.toJSON = function () {
   // } else {
   //   userObject.token = false;
   // }
-  return _.pick(userObject, ['_id', 'email']);
+  return _.pick(userObject, ['_id', 'email','account']);
 };
 
 UserSchema.methods.generateAuthToken = function () {

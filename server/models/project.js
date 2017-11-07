@@ -89,11 +89,11 @@ var ProjectSchema =  new mongoose.Schema({
 
 ProjectSchema.statics.findProject = function(userId, projectId) {
   return new Promise((res,rej) => {
-        //console.log('Init find proj');
+       //console.log('Init find proj');
         Project.findOne({
-        _id: projectId,
-        _creator: userId
-      },{__v:0,_creator:0,_createdAt:0}
+            _id: projectId,
+            _creator: userId
+          },{__v:0,_creator:0,_createdAt:0}
       ).then((project) => {
         if (!project) {
           rej(404);

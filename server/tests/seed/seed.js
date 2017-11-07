@@ -66,7 +66,7 @@ const clients = [{
   _id: clientOneId,
   email: 'client@one.com',
   reference: userOneId,
-  project: projectOneId,
+  projectsClient: [{project: projectOneId},{project: projectTwoId}],
   account: 'client',
   tokens: [{
     access: 'auth',
@@ -76,7 +76,7 @@ const clients = [{
   _id: clientTwoId,
   email: 'client@two.com',
   reference: userTwoId,
-  project: projectTwoId,
+  projectsClient: [],
   account: 'client',
   tokens: [{
     access: 'auth',

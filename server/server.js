@@ -48,6 +48,12 @@ app.post('/clients/:project', authenticate, UserController.createClient);
 
 app.patch('/clients/setAccount', UserController.userSettings);
 
+app.get('/clients/projects/', authenticate, ProjectController.getClientProjects);
+
+app.get('/clients/projects/:id', authenticate, ProjectController.readClientProject);
+
+
+
 // USERS //
 app.post('/users', UserController.create);
 
